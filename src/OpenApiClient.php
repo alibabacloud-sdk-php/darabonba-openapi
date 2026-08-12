@@ -102,52 +102,60 @@ class OpenApiClient
                 "message" => "'config' can not be unset"
             ]);
         }
-        if (!Utils::empty_($config->accessKeyId) && !Utils::empty_($config->accessKeySecret)) {
-            if (!Utils::empty_($config->securityToken)) {
-                $config->type = "sts";
+        $accessKeyId = property_exists($config, 'accessKeyId') ? $config->accessKeyId : null;
+        $accessKeySecret = property_exists($config, 'accessKeySecret') ? $config->accessKeySecret : null;
+        $securityToken = property_exists($config, 'securityToken') ? $config->securityToken : null;
+        $bearerToken = property_exists($config, 'bearerToken') ? $config->bearerToken : null;
+        $credential = property_exists($config, 'credential') ? $config->credential : null;
+        if (!Utils::empty_($accessKeyId) && !Utils::empty_($accessKeySecret)) {
+            if (!Utils::empty_($securityToken)) {
+                $type = "sts";
             } else {
-                $config->type = "access_key";
+                $type = "access_key";
+            }
+            if (property_exists($config, 'type')) {
+                $config->type = $type;
             }
             $credentialConfig = new Config([
-                "accessKeyId" => $config->accessKeyId,
-                "type" => $config->type,
-                "accessKeySecret" => $config->accessKeySecret
+                "accessKeyId" => $accessKeyId,
+                "type" => $type,
+                "accessKeySecret" => $accessKeySecret
             ]);
-            $credentialConfig->securityToken = $config->securityToken;
+            $credentialConfig->securityToken = $securityToken;
             $this->_credential = new Credential($credentialConfig);
-        } else if (!Utils::empty_($config->bearerToken)) {
+        } else if (!Utils::empty_($bearerToken)) {
             $cc = new Config([
                 "type" => "bearer",
-                "bearerToken" => $config->bearerToken
+                "bearerToken" => $bearerToken
             ]);
             $this->_credential = new Credential($cc);
-        } else if (!Utils::isUnset($config->credential)) {
-            $this->_credential = $config->credential;
+        } else if (!Utils::isUnset($credential)) {
+            $this->_credential = $credential;
         }
-        $this->_endpoint = $config->endpoint;
-        $this->_endpointType = $config->endpointType;
-        $this->_network = $config->network;
-        $this->_suffix = $config->suffix;
-        $this->_protocol = $config->protocol;
-        $this->_method = $config->method;
-        $this->_regionId = $config->regionId;
-        $this->_userAgent = $config->userAgent;
-        $this->_readTimeout = $config->readTimeout;
-        $this->_connectTimeout = $config->connectTimeout;
-        $this->_httpProxy = $config->httpProxy;
-        $this->_httpsProxy = $config->httpsProxy;
-        $this->_noProxy = $config->noProxy;
-        $this->_socks5Proxy = $config->socks5Proxy;
-        $this->_socks5NetWork = $config->socks5NetWork;
-        $this->_maxIdleConns = $config->maxIdleConns;
-        $this->_signatureVersion = $config->signatureVersion;
-        $this->_signatureAlgorithm = $config->signatureAlgorithm;
-        $this->_globalParameters = $config->globalParameters;
-        $this->_key = $config->key;
-        $this->_cert = $config->cert;
-        $this->_ca = $config->ca;
-        $this->_disableHttp2 = $config->disableHttp2;
-        $this->_tlsMinVersion = $config->tlsMinVersion;
+        $this->_endpoint = property_exists($config, 'endpoint') ? $config->endpoint : null;
+        $this->_endpointType = property_exists($config, 'endpointType') ? $config->endpointType : null;
+        $this->_network = property_exists($config, 'network') ? $config->network : null;
+        $this->_suffix = property_exists($config, 'suffix') ? $config->suffix : null;
+        $this->_protocol = property_exists($config, 'protocol') ? $config->protocol : null;
+        $this->_method = property_exists($config, 'method') ? $config->method : null;
+        $this->_regionId = property_exists($config, 'regionId') ? $config->regionId : null;
+        $this->_userAgent = property_exists($config, 'userAgent') ? $config->userAgent : null;
+        $this->_readTimeout = property_exists($config, 'readTimeout') ? $config->readTimeout : null;
+        $this->_connectTimeout = property_exists($config, 'connectTimeout') ? $config->connectTimeout : null;
+        $this->_httpProxy = property_exists($config, 'httpProxy') ? $config->httpProxy : null;
+        $this->_httpsProxy = property_exists($config, 'httpsProxy') ? $config->httpsProxy : null;
+        $this->_noProxy = property_exists($config, 'noProxy') ? $config->noProxy : null;
+        $this->_socks5Proxy = property_exists($config, 'socks5Proxy') ? $config->socks5Proxy : null;
+        $this->_socks5NetWork = property_exists($config, 'socks5NetWork') ? $config->socks5NetWork : null;
+        $this->_maxIdleConns = property_exists($config, 'maxIdleConns') ? $config->maxIdleConns : null;
+        $this->_signatureVersion = property_exists($config, 'signatureVersion') ? $config->signatureVersion : null;
+        $this->_signatureAlgorithm = property_exists($config, 'signatureAlgorithm') ? $config->signatureAlgorithm : null;
+        $this->_globalParameters = property_exists($config, 'globalParameters') ? $config->globalParameters : null;
+        $this->_key = property_exists($config, 'key') ? $config->key : null;
+        $this->_cert = property_exists($config, 'cert') ? $config->cert : null;
+        $this->_ca = property_exists($config, 'ca') ? $config->ca : null;
+        $this->_disableHttp2 = property_exists($config, 'disableHttp2') ? $config->disableHttp2 : null;
+        $this->_tlsMinVersion = property_exists($config, 'tlsMinVersion') ? $config->tlsMinVersion : null;
     }
 
     /**
@@ -1293,7 +1301,9 @@ class OpenApiClient
      */
     public function checkConfig($config)
     {
-        if (Utils::empty_($this->_endpointRule) && Utils::empty_($config->endpoint)) {
+        if (Utils::empty_($this->_endpointRule)
+            && property_exists($config, 'endpoint')
+            && Utils::empty_($config->endpoint)) {
             throw new TeaError([
                 "code" => "ParameterMissing",
                 "message" => "'config.endpoint' can not be empty"
